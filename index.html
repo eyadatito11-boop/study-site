@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المذاكرة — المنهج الجديد 2027</title>
+<style>
+:root{
+  --white:#ffffff; --burgundy:#7a1f2b; --burgundy-dark:#5c1620;
+  --gray-50:#f6f6f7; --gray-100:#ececee; --gray-300:#c9c9ce;
+  --gray-600:#6b6b73; --gray-900:#242428; --radius:16px; --shadow:0 4px 20px rgba(36,36,40,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:"Segoe UI",Tahoma,system-ui,sans-serif;background:var(--gray-50);color:var(--gray-900);-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{background:var(--white);border-bottom:1px solid var(--gray-100);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.brand{font-weight:800;font-size:1.15rem;letter-spacing:-.5px}
+.brand span{color:var(--burgundy)}
+.back-btn{background:var(--gray-50);border:1px solid var(--gray-100);color:var(--gray-900);padding:8px 14px;border-radius:10px;font-size:.9rem;cursor:pointer;}
+.app{flex:1;width:100%;max-width:720px;margin:0 auto;padding:20px}
+.foot{text-align:center;font-size:.8rem;color:var(--gray-600);padding:20px;border-top:1px solid var(--gray-100);background:var(--white);}
+h1.page-title{font-size:1.4rem;margin-bottom:6px;font-weight:800}
+p.page-sub{color:var(--gray-600);font-size:.9rem;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(min-width:560px){.grid{grid-template-columns:1fr 1fr 1fr}}
+.card{background:var(--white);border:1px solid var(--gray-100);border-radius:var(--radius);padding:16px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease;box-shadow:var(--shadow);}
+.card:active{transform:scale(.98)}
+.card .title{font-weight:700;font-size:1rem;margin-bottom:4px}
+.card .meta{font-size:.78rem;color:var(--gray-600)}
+.row{background:var(--white);border:1px solid var(--gray-100);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:var(--shadow);}
+.row:active{background:var(--gray-50)}
+.row .r-title{font-weight:600;font-size:.95rem}
+.row .r-sub{font-size:.78rem;color:var(--gray-600)}
+.row .chev{color:var(--gray-300);font-size:1.2rem}
+.lesson-box{background:var(--white);border:1px solid var(--gray-100);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:16px;}
+.lesson-box h2{font-size:1.1rem;color:var(--burgundy);margin:16px 0 8px}
+.lesson-box h2:first-child{margin-top:0}
+.lesson-box p{font-size:.95rem;line-height:1.85;margin-bottom:10px}
+.lesson-box ul{padding-right:20px;margin-bottom:10px}
+.lesson-box li{font-size:.93rem;line-height:1.8;margin-bottom:4px}
+.btn{display:block;width:100%;text-align:center;background:var(--burgundy);color:#fff;border:none;padding:15px;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:16px;}
+.btn:active{background:var(--burgundy-dark)}
+.q-block{background:var(--white);border:1px solid var(--gray-100);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:var(--shadow);}
+.q-text{font-weight:700;font-size:.95rem;margin-bottom:12px}
+.opt{display:block;padding:12px 14px;border:1.5px solid var(--gray-100);border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:.92rem;}
+.opt:active{background:var(--gray-50)}
+.opt.sel{border-color:var(--burgundy);background:#fdf5f6}
+.opt.correct{border-color:#2e7d32;background:#eef8ee}
+.opt.wrong{border-color:#c62828;background:#fdeeee}
+.score-box{background:var(--white);border:1px solid var(--gray-100);border-radius:var(--radius);padding:24px;text-align:center;box-shadow:var(--shadow);}
+.score-num{font-size:2.6rem;font-weight:800;color:var(--burgundy);line-height:1}
+.score-lbl{color:var(--gray-600);font-size:.9rem;margin-top:6px}
+.signature{position:fixed;bottom:18px;left:18px;z-index:50;display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#7a1f2b,#5c1620);color:#fff;padding:10px 16px;border-radius:99px;box-shadow:0 6px 22px rgba(122,31,43,.35);border:1px solid rgba(255,255,255,.18);font-size:.82rem;font-weight:800;letter-spacing:.5px;backdrop-filter:blur(6px);}
+.sig-star{color:#f3c6cc;font-size:.9rem}
+.sig-name{background:linear-gradient(90deg,#fff,#f3c6cc,#fff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">المذاكرة <span>2027</span></div>
+  <button class="back-btn" id="backBtn" hidden>← رجوع</button>
+</header>
+
+<div class="signature">
+  <span class="sig-star">✦</span>
+  <span class="sig-name">اياد محمد عطيتو</span>
+  <span class="sig-star">✦</span>
+</div>
+
+<main id="app" class="app"></main>
+<footer class="foot">تقدمك يُحفظ على جهازك فقط</footer>
+
+<script>
+const CURRICULUM = {
+  "grade7": { name: "الصف الأول الإعدادي", subjects: {
+    "science": { name: "العلوم", units: [{ title: "الوحدة الأولى: المادة وتركيبها", lessons: [
+      { title: "الدرس الأول: تركيب الذرة", summary: [{t:"p", v:"الذرة هي أصغر وحدة بنائية للمادة."},{t:"li", v:["البروتونات: موجبة.","النيوترونات: متعادلة.","الإلكترونات: سالبة."]}], quiz: [{q:"أي الجسيمات يحمل شحنة موجبة؟", opts:["الإلكترون","البروتون","النيوترون","الفوتون"], a:1},{q:"توجد النيوترونات في...", opts:["مدارات","داخل النواة","السطح","لا توجد"], a:1}]}
+    ]}]},
+    "social": { name: "الدراسات الاجتماعية", units: [{ title: "الوحدة الأولى: الجغرافيا", lessons: [
+      { title: "الدرس الأول: الموقع الفلكي والجغرافي", summary: [{t:"p", v:"الموقع الفلكي: بالنسبة لخطوط الطول ودوائر العرض."},{t:"p", v:"الموقع الجغرافي: بالنسبة للدول المجاورة."}], quiz: [{q:"موقع مصر للدول المجاورة يسمى...", opts:["فلكي","جغرافي","سياسي","مناخي"], a:1}]}
+    ]}]}
+  }},
+  "grade8": { name: "الصف الثاني الإعدادي", subjects: {
+    "science": { name: "العلوم", units: [{ title: "الوحدة الأولى: الحركة", lessons: [
+      { title: "الدرس الأول: الحركة والسرعة", summary: [{t:"p", v:"السرعة = المسافة ÷ الزمن."}], quiz: [{q:"جسم قطع 100م في 20ث، سرعته؟", opts:["2","5","10","20"], a:1}]}
+    ]}]}
+  }},
+  "grade9": { name: "الصف الثالث الإعدادي", subjects: {
+    "science": { name: "العلوم", units: [{ title: "الوحدة الأولى: القوى", lessons: [
+      { title: "الدرس الأول: قوانين نيوتن", summary: [{t:"p", v:"القانون الأول: القصور الذاتي."},{t:"p", v:"القانون الثاني: ق = ك × ت."}], quiz: [{q:"قانون القصور الذاتي هو...", opts:["الأول","الثاني","الثالث","الرابع"], a:0}]}
+    ]}]}
+  }}
+};
+
+const app = document.getElementById('app');
+const backBtn = document.getElementById('backBtn');
+let stack = [];
+
+function nav(renderFn, ctx) {
+  stack.push({fn: renderFn, ctx});
+  renderFn(ctx);
+  backBtn.hidden = stack.length <= 1;
+}
+backBtn.onclick = () => {
+  if(stack.length > 1) { stack.pop(); const top = stack[stack.length-1]; top.fn(top.ctx); backBtn.hidden = stack.length <= 1; }
+};
+
+function renderHome() {
+  app.innerHTML = `<h1 class="page-title">اختر صفك</h1><p class="page-sub">المنهج الجديد 2027</p><div class="grid" id="g"></div>`;
+  const g = document.getElementById('g');
+  Object.entries(CURRICULUM).forEach(([id, data]) => {
+    const d = document.createElement('div');
+    d.className = 'card';
+    d.innerHTML = `<div class="title">${data.name}</div>`;
+    d.onclick = () => nav(renderSubjects, id);
+    g.appendChild(d);
+  });
+}
+
+function renderSubjects(gradeId) {
+  const grade = CURRICULUM[gradeId];
+  app.innerHTML = `<h1 class="page-title">${grade.name}</h1><p class="page-sub">اختر المادة</p><div class="grid" id="s"></div>`;
+  const box = document.getElementById('s');
+  Object.entries(grade.subjects).forEach(([id, data]) => {
+    const d = document.createElement('div');
+    d.className = 'card';
+    d.innerHTML = `<div class="title">${data.name}</div>`;
+    d.onclick = () => nav(renderUnits, {gradeId, subId: id});
+    box.appendChild(d);
+  });
+}
+
+function renderUnits({gradeId, subId}) {
+  const sub = CURRICULUM[gradeId].subjects[subId];
+  app.innerHTML = `<h1 class="page-title">${sub.name}</h1><p class="page-sub">الوحدات</p><div id="u"></div>`;
+  const box = document.getElementById('u');
+  sub.units.forEach((unit, ui) => {
+    const d = document.createElement('div');
+    d.className = 'row';
+    d.innerHTML = `<div><div class="r-title">${unit.title}</div></div><div class="chev">‹</div>`;
+    d.onclick = () => nav(renderLessons, {gradeId, subId, ui});
+    box.appendChild(d);
+  });
+}
+
+function renderLessons({gradeId, subId, ui}) {
+  const unit = CURRICULUM[gradeId].subjects[subId].units[ui];
+  app.innerHTML = `<h1 class="page-title">${unit.title}</h1><p class="page-sub">الدروس</p><div id="l"></div>`;
+  const box = document.getElementById('l');
+  unit.lessons.forEach((les, li) => {
+    const d = document.createElement('div');
+    d.className = 'row';
+    d.innerHTML = `<div><div class="r-title">${les.title}</div></div><div class="chev">‹</div>`;
+    d.onclick = () => nav(renderLesson, {gradeId, subId, ui, li});
+    box.appendChild(d);
+  });
+}
+
+function renderLesson({gradeId, subId, ui, li}) {
+  const les = CURRICULUM[gradeId].subjects[subId].units[ui].lessons[li];
+  let html = `<div class="lesson-box"><h2>ملخص الدرس</h2>`;
+  les.summary.forEach(b => {
+    if(b.t === 'p') html += `<p>${b.v}</p>`;
+    if(b.t === 'li') html += `<ul>${b.v.map(x => `<li>${x}</li>`).join('')}</ul>`;
+  });
+  html += `</div><button class="btn" id="startQuiz">ابدأ امتحان الدرس</button>`;
+  app.innerHTML = `<h1 class="page-title">${les.title}</h1>${html}`;
+  document.getElementById('startQuiz').onclick = () => nav(renderQuiz, {gradeId, subId, ui, li});
+}
+
+function renderQuiz({gradeId, subId, ui, li}) {
+  const les = CURRICULUM[gradeId].subjects[subId].units[ui].lessons[li];
+  const questions = les.quiz;
+  app.innerHTML = `<h1 class="page-title">امتحان: ${les.title}</h1><div id="qs"></div><button class="btn" id="submit">تصحيح الامتحان</button><div id="result"></div>`;
+  const qs = document.getElementById('qs');
+  const answers = new Array(questions.length).fill(-1);
+  
+  questions.forEach((q, qi) => {
+    const b = document.createElement('div');
+    b.className = 'q-block';
+    b.innerHTML = `<div class="q-text">${qi+1}. ${q.q}</div>` + q.opts.map((o, oi) => `<div class="opt" data-q="${qi}" data-o="${oi}">${o}</div>`).join('');
+    qs.appendChild(b);
+  });
+
+  qs.querySelectorAll('.opt').forEach(el => {
+    el.onclick = () => {
+      const qi = +el.dataset.q;
+      qs.querySelectorAll(`.opt[data-q="${qi}"]`).forEach(x => x.classList.remove('sel'));
+      el.classList.add('sel');
+      answers[qi] = +el.dataset.o;
+    };
+  });
+
+  document.getElementById('submit').onclick = () => {
+    let score = 0;
+    questions.forEach((q, qi) => {
+      qs.querySelectorAll(`.opt[data-q="${qi}"]`).forEach(el => {
+        const oi = +el.dataset.o;
+        if(oi === q.a) el.classList.add('correct');
+        else if(oi === answers[qi] && answers[qi] !== -1) el.classList.add('wrong');
+      });
+      if(answers[qi] === q.a) score++;
+    });
+    const pct = Math.round(score / questions.length * 100);
+    document.getElementById('result').innerHTML = `<div class="score-box" style="margin-top:16px"><div class="score-num">${score}/${questions.length}</div><div class="score-lbl">${pct}%</div></div>`;
+    document.getElementById('submit').disabled = true;
+  };
+}
+
+nav(renderHome);
+</script>
+</body>
+</html>
