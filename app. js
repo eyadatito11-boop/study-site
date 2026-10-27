@@ -1,0 +1,153 @@
+const app = document.getElementById('app');
+const backBtn = document.getElementById('backBtn');
+const store = {
+  get:()=>JSON.parse(localStorage.getItem('study_progress')||'{}'),
+  set:(o)=>localStorage.setItem('study_progress',JSON.stringify(o))
+};
+let stack = [];
+
+function nav(renderFn, ctx){
+  stack.push({fn:renderFn, ctx});
+  renderFn(ctx);
+  backBtn.hidden = stack.length <= 1;
+}
+backBtn.onclick = ()=>{
+  if(stack.length>1){stack.pop(); const top=stack[stack.length-1]; top.fn(top.ctx); backBtn.hidden = stack.length<=1;}
+};
+
+function renderHome(){
+  const grades = Object.entries(CURRICULUM);
+  app.innerHTML = `
+    <h1 class="page-title">اختر صفك</h1>
+    <p class="page-sub">المنهج الجديد 2027</p>
+    <div class="grid" id="g"></div>`;
+  const g = document.getElementById('g');
+  grades.forEach(([id,data])=>{
+    const d = document.createElement('div');
+    d.className='card';
+    d.innerHTML = `<div class="title">${data.name}</div><div class="meta">${Object.keys(data.subjects).length} مادة</div>`;
+    d.onclick = ()=> nav(renderSubjects, id);
+    g.appendChild(d);
+  });
+}
+
+function renderSubjects(gradeId){
+  const grade = CURRICULUM[gradeId];
+  const subs = Object.entries(grade.subjects);
+  app.innerHTML = `<h1 class="page-title">${grade.name}</h1><p class="page-sub">اختر المادة</p><div class="grid" id="s"></div>`;
+  const box = document.getElementById('s');
+  if(!subs.length){ box.innerHTML = `<p class="page-sub">لا توجد مواد بعد. أضفها من data.js</p>`; return; }
+  subs.forEach(([id,data])=>{
+    const d = document.createElement('div');
+    d.className='card';
+    d.innerHTML = `<div class="title">${data.name}</div><div class="meta">${data.units.length} وحدة</div>`;
+    d.onclick = ()=> nav(renderUnits, {gradeId, subId:id});
+    box.appendChild(d);
+  });
+}
+
+function renderUnits({gradeId, subId}){
+  const sub = CURRICULUM[gradeId].subjects[subId];
+  app.innerHTML = `<h1 class="page-title">${sub.name}</h1><p class="page-sub">الوحدات</p><div id="u"></div>`;
+  const box = document.getElementById('u');
+  sub.units.forEach((unit, ui)=>{
+    const prog = unitProgress(gradeId, subId, ui);
+    const d = document.createElement('div');
+    d.className='row';
+    d.innerHTML = `<div><div class="r-title">${unit.title}</div><div class="r-sub">${unit.lessons.length} دروس — ${prog}% مكتمل</div><div class="progress"><i style="width:${prog}%"></i></div></div><div class="chev">‹</div>`;
+    d.onclick = ()=> nav(renderLessons, {gradeId, subId, ui});
+    box.appendChild(d);
+  });
+}
+
+function unitProgress(g,s,ui){
+  const p = store.get();
+  const unit = CURRICULUM[g].subjects[s].units[ui];
+  const done = unit.lessons.filter((_,li)=> p[`${g}.${s}.${ui}.${li}.quiz`]).length;
+  return unit.lessons.length ? Math.round(done/unit.lessons.length*100) : 0;
+}
+
+function renderLessons({gradeId, subId, ui}){
+  const unit = CURRICULUM[gradeId].subjects[subId].units[ui];
+  app.innerHTML = `<h1 class="page-title">${unit.title}</h1><p class="page-sub">الدروس</p><div id="l"></div><button class="btn ghost" id="unitQuiz">امتحان الوحدة كاملة</button>`;
+  const box = document.getElementById('l');
+  unit.lessons.forEach((les, li)=>{
+    const p = store.get();
+    const done = !!p[`${gradeId}.${subId}.${ui}.${li}.quiz`];
+    const d = document.createElement('div');
+    d.className='row';
+    d.innerHTML = `<div><div class="r-title">${done?'✓ ':''}${les.title}</div><div class="r-sub">${les.quiz.length} أسئلة</div></div><div class="chev">‹</div>`;
+    d.onclick = ()=> nav(renderLesson, {gradeId, subId, ui, li});
+    box.appendChild(d);
+  });
+  document.getElementById('unitQuiz').onclick = ()=> nav(renderQuiz, {gradeId, subId, ui, unitQuiz:true});
+}
+
+function renderLesson({gradeId, subId, ui, li}){
+  const les = CURRICULUM[gradeId].subjects[subId].units[ui].lessons[li];
+  let html = `<div class="lesson-box"><h2>ملخص الدرس</h2>`;
+  les.summary.forEach(b=>{
+    if(b.t==='p') html += `<p>${b.v}</p>`;
+    if(b.t==='h') html += `<h2>${b.v}</h2>`;
+    if(b.t==='li') html += `<ul>${b.v.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  });
+  html += `</div><button class="btn" id="startQuiz">ابدأ امتحان الدرس</button>`;
+  app.innerHTML = `<h1 class="page-title">${les.title}</h1><p class="page-sub">اقرأ الملخص ثم اختبر نفسك</p>${html}`;
+  document.getElementById('startQuiz').onclick = ()=> nav(renderQuiz, {gradeId, subId, ui, li});
+}
+
+function renderQuiz(ctx){
+  let questions, title;
+  if(ctx.unitQuiz){
+    const unit = CURRICULUM[ctx.gradeId].subjects[ctx.subId].units[ctx.ui];
+    questions = unit.lessons.flatMap(l=>l.quiz);
+    title = "امتحان الوحدة";
+  } else {
+    const les = CURRICULUM[ctx.gradeId].subjects[ctx.subId].units[ctx.ui].lessons[ctx.li];
+    questions = les.quiz;
+    title = "امتحان: " + les.title;
+  }
+  app.innerHTML = `<h1 class="page-title">${title}</h1><p class="page-sub">${questions.length} أسئلة — اختر إجابة واحدة لكل سؤال</p><div id="qs"></div><button class="btn" id="submit">تصحيح الامتحان</button><div id="result"></div>`;
+  const qs = document.getElementById('qs');
+  const answers = new Array(questions.length).fill(-1);
+  questions.forEach((q, qi)=>{
+    const b = document.createElement('div');
+    b.className='q-block';
+    b.innerHTML = `<div class="q-text">${qi+1}. ${q.q}</div>` +
+      q.opts.map((o,oi)=>`<div class="opt" data-q="${qi}" data-o="${oi}">${o}</div>`).join('');
+    qs.appendChild(b);
+  });
+  qs.querySelectorAll('.opt').forEach(el=>{
+    el.onclick = ()=>{
+      const qi = +el.dataset.q;
+      qs.querySelectorAll(`.opt[data-q="${qi}"]`).forEach(x=>x.classList.remove('sel'));
+      el.classList.add('sel');
+      answers[qi] = +el.dataset.o;
+    };
+  });
+  document.getElementById('submit').onclick = ()=>{
+    let score = 0;
+    questions.forEach((q,qi)=>{
+      qs.querySelectorAll(`.opt[data-q="${qi}"]`).forEach(el=>{
+        const oi = +el.dataset.o;
+        if(oi===q.a) el.classList.add('correct');
+        else if(oi===answers[qi] && answers[qi]!==-1) el.classList.add('wrong');
+      });
+      if(answers[qi]===q.a) score++;
+    });
+    const pct = Math.round(score/questions.length*100);
+    if(!ctx.unitQuiz){
+      const p = store.get();
+      p[`${ctx.gradeId}.${ctx.subId}.${ctx.ui}.${ctx.li}.quiz`] = pct;
+      store.set(p);
+    }
+    document.getElementById('result').innerHTML = `
+      <div class="score-box" style="margin-top:16px">
+        <div class="score-num">${score}/${questions.length}</div>
+        <div class="score-lbl">${pct}% — ${pct>=70?'أحسنت':'راجع الدرس وحاول مرة أخرى'}</div>
+      </div>`;
+    document.getElementById('submit').disabled = true;
+  };
+}
+
+nav(renderHome);
